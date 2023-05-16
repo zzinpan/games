@@ -1,7 +1,7 @@
 export default class Vector2 {
 
-    private x: number;
-    private y: number;
+    private x: number = 0;
+    private y: number = 0;
 
     constructor( x: number = 0, y: number = 0 ) {
         this.set( x, y );

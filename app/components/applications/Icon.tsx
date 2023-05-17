@@ -2,7 +2,7 @@ import React from "react";
 import Image from 'next/image';
 import Icon from "@/app/constants/class/Icon";
 
-const Constant = {
+const constant = {
 
     className: {
 
@@ -32,18 +32,18 @@ const Constant = {
 
 };
 
-type Props = {
-    icon: Icon
-}
+const IconComponent: React.FC<{
 
-const IconComponent: React.FC<Props> = ( { icon } ) => {
+    icon: Icon
+
+}> = ( { icon } ) => {
 
     const iconName = icon.getName();
 
     return (
-        <div className={Constant.className.wrap}>
-            <Image className={Constant.className.image} alt={iconName} src={icon.getImageSource()} width={100} height={100}></Image>
-            <div className={Constant.className.name}>{iconName}</div>
+        <div className={constant.className.wrap}>
+            <Image className={constant.className.image} alt={iconName} src={icon.getImageSource()} width={100} height={100}></Image>
+            <div className={constant.className.name}>{iconName}</div>
         </div>
     );
 };

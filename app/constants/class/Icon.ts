@@ -1,6 +1,9 @@
 import Vector2 from "@/app/constants/class/Vector2";
+import Size from "@/app/constants/class/Size";
 
 export default class Icon {
+
+    static OuterSize = new Size( 200, 200 );
 
     private readonly id: string;
     private readonly name: string;

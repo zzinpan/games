@@ -1,34 +1,46 @@
 import React, {useState} from "react";
 import Icon from "@/app/constants/class/Icon";
 
-const Constant = {
+const constant = {
 
     className: {
-
+        searchText: [
+            'absolute',
+            'left-0',
+            'top-0',
+            'text-gray-400',
+            'cursor-pointer',
+            'text-center',
+            'whitespace-nowrap',
+            'ease-in-out',
+            'duration-500'
+        ].join(" ")
     }
 
 };
 
-const Search: React.FC = () => {
+const Search: React.FC<{
 
-    const [isClickedStartButton, setIsClickedStartButton] = useState(false)
+    isMovedSearchText: boolean
+    onClickSearchText: () => void
 
+}> = (props) => {
 
     const methods = {
 
-        startButtonWidthClassName(){
+        getSearchTextWidthClassName(){
 
-            if( isClickedStartButton ){
-                return 'w-auto';
+            if( props.isMovedSearchText ){
+                return 'w-[0%]';
             }
 
-            return 'w-full';
+            return 'w-[100%]';
 
         },
 
-        onClickStartButton(){
+        onClickSearchText(){
 
-            setIsClickedStartButton(true);
+            props.onClickSearchText();
 
         }
 
@@ -39,7 +51,7 @@ const Search: React.FC = () => {
             <input className={"border-0 bg-transparent rounded text-white"}>
 
             </input>
-            <div className={`absolute left-0 top-0 text-gray-400 cursor-pointer text-center transition ${methods.startButtonWidthClassName()}`} onClick={methods.onClickStartButton}>
+            <div className={`${constant.className.searchText} ${methods.getSearchTextWidthClassName()}`} onClick={methods.onClickSearchText}>
                 <i className="fa-solid fa-magnifying-glass"></i> 검색
             </div>
         </div>

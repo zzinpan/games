@@ -42,7 +42,7 @@ const IconComponent: React.FC<{
 
     return (
         <div className={constant.className.wrap}>
-            <Image className={constant.className.image} alt={iconName} src={icon.getImageSource()} width={100} height={100}></Image>
+            <Image className={constant.className.image} alt={iconName} src={icon.getImageSource()} width={100} height={100} draggable={false}></Image>
             <div className={constant.className.name}>{iconName}</div>
         </div>
     );

@@ -1,23 +1,4 @@
-import React, {useState} from "react";
-import Icon from "@/app/constants/class/Icon";
-
-const constant = {
-
-    className: {
-        searchText: [
-            'absolute',
-            'left-0',
-            'top-0',
-            'text-gray-400',
-            'cursor-pointer',
-            'text-center',
-            'whitespace-nowrap',
-            'ease-in-out',
-            'duration-500'
-        ].join(" ")
-    }
-
-};
+import React, {useEffect, useState} from "react";
 
 const Search: React.FC<{
 
@@ -26,15 +7,43 @@ const Search: React.FC<{
 
 }> = (props) => {
 
+    const [searchText, setSearchText] = useState('검색');
+
+    useEffect(() => {
+
+        if( props.isMovedSearchText ){
+            return;
+        }
+        refs.input.current.value = '';
+        setSearchText('검색');
+
+    });
+
+    const refs = {
+
+        input: React.createRef()
+
+    };
+
     const methods = {
 
-        getSearchTextWidthClassName(){
+        getSearchTextWidth(){
 
             if( props.isMovedSearchText ){
-                return 'w-[0%]';
+                return '0px';
             }
 
-            return 'w-[100%]';
+            return 'calc(100% - 4px)';
+
+        },
+
+        getSearchTextPointerEvents(){
+
+            if( props.isMovedSearchText ){
+                return 'pointer-events-none';
+            }
+
+            return 'pointer-events-auto';
 
         },
 
@@ -42,17 +51,35 @@ const Search: React.FC<{
 
             props.onClickSearchText();
 
+            if(props.isMovedSearchText === true){
+                return;
+            }
+
+            // 500ms의 이동 transition이 발생
+            const input = refs.input.current;
+            setTimeout(() => {
+                input.focus();
+            }, 500);
+
+        },
+
+        onSearchInput( event ){
+            if( event.currentTarget.value.length === 0 ){
+                setSearchText('검색');
+                return;
+            }
+
+            setSearchText('');
         }
 
     };
 
     return (
-        <div className={"relative inline-block rounded h-[24px]"} style={{"box-shadow": "#ffffff 0px 0px 0px 1px"}}>
-            <input className={"border-0 bg-transparent rounded text-white"}>
-
-            </input>
-            <div className={`${constant.className.searchText} ${methods.getSearchTextWidthClassName()}`} onClick={methods.onClickSearchText}>
-                <i className="fa-solid fa-magnifying-glass"></i> 검색
+        <div className={"relative inline-block rounded h-[24px] text-[14px] p-[2px]"} style={{"boxShadow": "#ffffff 0px 0px 0px 1px"}}>
+            <input ref={refs.input} className={"border-0 bg-transparent rounded text-white outline-0 pl-[23px]"} onInput={methods.onSearchInput}></input>
+            <div className={`absolute top-0 left-[4px] text-gray-400 text-center whitespace-nowrap ease-in-out duration-500 p-[2px] cursor-pointer`} style={{width: methods.getSearchTextWidth()}} onClick={methods.onClickSearchText}>
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <span className={methods.getSearchTextPointerEvents()}> {searchText}</span>
             </div>
         </div>
     );

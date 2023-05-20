@@ -6,6 +6,7 @@ import Search from "@/app/components/applications/Search";
 import PageNavigation from "@/app/components/applications/PageNavigation";
 import Size from "@/app/constants/class/Size";
 import Utils from "@/app/utils";
+import Section from "@/app/components/applications/Section";
 
 const constant = {
 
@@ -68,25 +69,6 @@ const constant = {
         const constant = {
             iconPageSize: new Size( iconPageWidth, iconPageHeight ),
             className: {
-                iconPage: [
-                    'absolute',
-                    'text-center',
-                    `w-[${iconPageWidth}px]`,
-                    `h-[${iconPageHeight}px]`,
-                    `-ml-[${iconPageWidth / 2}px]`,
-                    'top-1/2',
-                    `-mt-[${iconPageHeight / 2}px]`,
-                    // 'bg-red-600',
-                    'ease-in-out',
-                    'duration-500'
-                ].join(" "),
-
-                section: [
-                    'relative',
-                    'p-[13px]',
-                    // 'bg-green-500',
-                    'text-center'
-                ].join(" "),
 
                 body: [
                     'relative',
@@ -109,6 +91,11 @@ const ApplicationsPage: React.FC = () => {
     const [selectedPageIndex, setSelectedPageIndex] = useState(0);
     const [isMovedSearchText, setMovedSearchText] = useState(false);
 
+    const refs = {
+
+        search: React.createRef()
+
+    };
 
     const methods = {
 
@@ -118,6 +105,24 @@ const ApplicationsPage: React.FC = () => {
 
         onClickSearchText(){
             setMovedSearchText( !isMovedSearchText );
+        },
+
+        onClickBody(event){
+
+            if(isMovedSearchText === false){
+                return;
+            }
+
+            if( event.currentTarget === refs.search.current ){
+                return;
+            }
+
+            setMovedSearchText(false);
+
+        },
+
+        onClickSearchSection(event){
+           event.stopPropagation();
         }
 
     }
@@ -128,10 +133,12 @@ const ApplicationsPage: React.FC = () => {
     const pageLength = Math.ceil( constant.icons.length / pageIconLength );
 
     return (
-        <ApplicationsLayout>
-            <div className={constant.className.section}>
-                <Search isMovedSearchText={isMovedSearchText} onClickSearchText={methods.onClickSearchText}></Search>
-            </div>
+        <ApplicationsLayout onClick={methods.onClickBody}>
+            <Section>
+                <div ref={refs.search} onClick={methods.onClickSearchSection}>
+                    <Search isMovedSearchText={isMovedSearchText} onClickSearchText={methods.onClickSearchText}></Search>
+                </div>
+            </Section>
             <div className={constant.className.body} style={{height: "calc(100% - 100px)"}}>
 
                 {Utils.getLoopArray(( pageIndex ) => {
@@ -142,7 +149,7 @@ const ApplicationsPage: React.FC = () => {
                     const loopMaxIndex = Math.min( pageIconLength, maxIndex - firstIndex );
 
                     const offsetLeft = `${( pageIndex - selectedPageIndex ) * 100}%`;
-                    return <div key={pageIndex} className={constant.className.iconPage} style={{left: `calc( 50% + ${offsetLeft} )`}}>
+                    return <div key={pageIndex} className={'absolute text-center w-[1200px] h-[600px] -ml-[600px] top-1/2 -mt-[300px] ease-in-out duration-700'} style={{left: `calc( 50% + ${offsetLeft} )`}}>
 
                         {Utils.getLoopArray(( index ) => {
 
@@ -158,10 +165,9 @@ const ApplicationsPage: React.FC = () => {
 
                 }, pageLength)}
             </div>
-            {/*<div className={"relative p-[13px] bg-green-500 text-center"}>*/}
-            <div className={constant.className.section}>
+            <Section>
                 <PageNavigation selectedIndex={selectedPageIndex} length={pageLength} onClick={methods.onClickPage}></PageNavigation>
-            </div>
+            </Section>
         </ApplicationsLayout>
     );
 };

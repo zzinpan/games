@@ -1,21 +1,6 @@
 import React from "react";
 import Utils from "@/app/utils";
 
-const constant = {
-
-    className: [
-
-        "inline-block",
-        "rounded-full",
-        "w-[10px]",
-        "h-[10px]",
-        "cursor-pointer",
-        "bg-white"
-
-    ].join(" ")
-
-};
-
 const PageNavigation: React.FC<{
 
     selectedIndex: number;
@@ -40,7 +25,7 @@ const PageNavigation: React.FC<{
     return (
         <div className={"relative inline-block h-[24px]"}>
             {Utils.getLoopArray((i) => {
-                return <div key={i} className={`${constant.className} ${methods.getOpacityClassName(i)}`} style={{margin: "0px 4px"}} onClick={props.onClick.bind(null, i)}></div>;
+                return <div key={i} className={`${'inline-block rounded-full w-[10px] h-[10px] cursor-pointer bg-white'} ${methods.getOpacityClassName(i)}`} style={{margin: "0px 4px"}} onClick={props.onClick.bind(null, i)}></div>;
             }, props.length)}
         </div>
     );

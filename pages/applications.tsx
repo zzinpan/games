@@ -7,6 +7,9 @@ import PageNavigation from "@/app/components/applications/PageNavigation";
 import Size from "@/app/constants/class/Size";
 import Utils from "@/app/utils";
 import Section from "@/app/components/applications/Section";
+import Vector2 from "@/app/constants/class/Vector2";
+import {Simulate} from "react-dom/test-utils";
+import mouseDown = Simulate.mouseDown;
 
 const constant = {
 
@@ -93,9 +96,39 @@ const ApplicationsPage: React.FC = () => {
 
     const refs = {
 
-        search: React.createRef()
+        search: React.createRef(),
+        pages: [],
 
     };
+
+    const data: {
+        mousedown: Vector2 | null
+        moveSnap: number
+        rowIconLength: number
+        columnIconLength: number
+        pageIconLength: number
+        pageLength: number
+    } = {
+
+        mousedown: null,
+        moveSnap: 200,
+        ...(() => {
+            const rowIconLength = constant.iconPageSize.getHeight() / Icon.OuterSize.getHeight();
+            const columnIconLength = constant.iconPageSize.getWidth() / Icon.OuterSize.getWidth();
+            const pageIconLength = rowIconLength * columnIconLength;
+            const pageLength = Math.ceil( constant.icons.length / pageIconLength );
+
+            return {
+                rowIconLength,
+                columnIconLength,
+                pageIconLength,
+                pageLength
+            };
+
+        })()
+    };
+
+
 
     const methods = {
 
@@ -123,17 +156,66 @@ const ApplicationsPage: React.FC = () => {
 
         onClickSearchSection(event){
            event.stopPropagation();
+        },
+
+        onMousedownBody(event){
+            if( event.button !== 0 ){
+                return;
+            }
+
+            data.mousedown = new Vector2(event.pageX, event.pageY);
+        },
+
+        onMousemoveBody(event){
+            if( data.mousedown === null ){
+                return;
+            }
+
+            const downX = data.mousedown.getX();
+            const moveX = event.pageX - downX;
+
+            refs.pages.forEach(( pageElement, pageIndex ) => {
+                pageElement.current.style.transition = 'none';
+
+                const offsetLeft = `${( pageIndex - selectedPageIndex ) * 100}%`;
+                pageElement.current.style.left = `calc( 50% + ${offsetLeft} + ${moveX}px )`;
+            });
+
+        },
+
+        onMouseupBody(event){
+            if(data.mousedown === null){
+                return;
+            }
+
+            refs.pages.forEach(( pageElement ) => {
+                pageElement.current.style.transition = '';
+            });
+
+            const downX = data.mousedown.getX();
+            const moveX = event.pageX - downX;
+            data.mousedown = null;
+
+            if( selectedPageIndex < data.pageLength - 1 && moveX < -data.moveSnap ){
+                setSelectedPageIndex( selectedPageIndex + 1 );
+                return;
+            }
+
+            if( 0 < selectedPageIndex && moveX > data.moveSnap ){
+                setSelectedPageIndex( selectedPageIndex - 1 );
+                return;
+            }
+
+            refs.pages.forEach(( pageElement, pageIndex ) => {
+                const offsetLeft = `${( pageIndex - selectedPageIndex ) * 100}%`;
+                pageElement.current.style.left = `calc( 50% + ${offsetLeft} )`;
+            });
         }
 
     }
 
-    const rowIconLength = constant.iconPageSize.getHeight() / Icon.OuterSize.getHeight();
-    const columnIconLength = constant.iconPageSize.getWidth() / Icon.OuterSize.getWidth();
-    const pageIconLength = rowIconLength * columnIconLength;
-    const pageLength = Math.ceil( constant.icons.length / pageIconLength );
-
     return (
-        <ApplicationsLayout onClick={methods.onClickBody}>
+        <ApplicationsLayout onClick={methods.onClickBody} onMousedown={methods.onMousedownBody} onMousemove={methods.onMousemoveBody} onMouseup={methods.onMouseupBody}>
             <Section>
                 <div ref={refs.search} onClick={methods.onClickSearchSection}>
                     <Search isMovedSearchText={isMovedSearchText} onClickSearchText={methods.onClickSearchText}></Search>
@@ -144,12 +226,16 @@ const ApplicationsPage: React.FC = () => {
                 {Utils.getLoopArray(( pageIndex ) => {
 
 
-                    const firstIndex = pageIndex * pageIconLength;
+                    const firstIndex = pageIndex * data.pageIconLength;
                     const maxIndex = constant.icons.length;
-                    const loopMaxIndex = Math.min( pageIconLength, maxIndex - firstIndex );
+                    const loopMaxIndex = Math.min( data.pageIconLength, maxIndex - firstIndex );
 
                     const offsetLeft = `${( pageIndex - selectedPageIndex ) * 100}%`;
-                    return <div key={pageIndex} className={'absolute text-center w-[1200px] h-[600px] -ml-[600px] top-1/2 -mt-[300px] ease-in-out duration-700'} style={{left: `calc( 50% + ${offsetLeft} )`}}>
+
+                    const ref = new React.createRef();
+                    refs.pages.push(ref);
+
+                    return <div key={pageIndex} ref={ref} className={'absolute text-center w-[1200px] h-[600px] -ml-[600px] top-1/2 -mt-[300px] ease-in-out duration-700'} style={{left: `calc( 50% + ${offsetLeft} )`}}>
 
                         {Utils.getLoopArray(( index ) => {
 
@@ -163,10 +249,10 @@ const ApplicationsPage: React.FC = () => {
 
                     </div>;
 
-                }, pageLength)}
+                }, data.pageLength)}
             </div>
             <Section>
-                <PageNavigation selectedIndex={selectedPageIndex} length={pageLength} onClick={methods.onClickPage}></PageNavigation>
+                <PageNavigation selectedIndex={selectedPageIndex} length={data.pageLength} onClick={methods.onClickPage}></PageNavigation>
             </Section>
         </ApplicationsLayout>
     );

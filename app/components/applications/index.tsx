@@ -103,6 +103,7 @@ const Applications: React.FC<{
     };
 
     const data: {
+        draged: boolean
         mousedown: Vector2 | null
         moveSnap: number
         rowIconLength: number
@@ -111,6 +112,7 @@ const Applications: React.FC<{
         pageLength: number
     } = {
 
+        draged: false,
         mousedown: null,
         moveSnap: 200,
         ...(() => {
@@ -158,6 +160,10 @@ const Applications: React.FC<{
                 return;
             }
 
+            if(data.draged){
+                return;
+            }
+
             if(props.onClickBody === undefined){
                 return;
             }
@@ -174,6 +180,7 @@ const Applications: React.FC<{
                 return;
             }
 
+            data.draged = false;
             data.mousedown = new Vector2(event.pageX, event.pageY);
         },
 
@@ -182,6 +189,7 @@ const Applications: React.FC<{
                 return;
             }
 
+            data.draged = true;
             const downX = data.mousedown.getX();
             const moveX = event.pageX - downX;
 
@@ -226,7 +234,7 @@ const Applications: React.FC<{
     }
 
     return (
-        <div className={`bg-[rgba(0,0,0,0.5)] bg-gradient-radial absolute top-0 left-0 min-w-[1200px] min-h-[800px] w-full h-full select-none ease-in-out duration-500 ${methods.getClassNameByVisible()}`} onClick={methods.onClickBody} onMouseDown={methods.onMousedownBody} onMouseMove={methods.onMousemoveBody} onMouseUp={methods.onMouseupBody}>
+        <div className={`bg-[rgba(0,0,0,0.25)] bg-gradient-radial absolute top-0 left-0 min-w-[1200px] min-h-[800px] w-full h-full select-none ease-in-out duration-500 ${methods.getClassNameByVisible()}`} onClick={methods.onClickBody} onMouseDown={methods.onMousedownBody} onMouseMove={methods.onMousemoveBody} onMouseUp={methods.onMouseupBody}>
             <Section>
                 <div ref={refs.search} onClick={methods.onClickSearchSection}>
                     <Search isMovedSearchText={props.isMovedSearchText} onClickSearchText={methods.onClickSearchText}></Search>

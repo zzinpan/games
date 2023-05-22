@@ -5,7 +5,7 @@ const PageNavigation: React.FC<{
 
     selectedIndex: number;
     length: number;
-    onClick: ( clickedIndex: number ) => void;
+    onClick: ( clickedIndex: number ) => void | undefined;
 
 }> = ( props ) => {
 
@@ -18,6 +18,15 @@ const PageNavigation: React.FC<{
             }
 
             return "opacity-50";
+        },
+
+        onClick(index, event){
+            event.stopPropagation();
+            if( props.onClick === undefined ){
+                return;
+            }
+
+            props.onClick( index );
         }
 
     };
@@ -25,7 +34,7 @@ const PageNavigation: React.FC<{
     return (
         <div className={"relative inline-block h-[24px]"}>
             {Utils.getLoopArray((i) => {
-                return <div key={i} className={`${'inline-block rounded-full w-[10px] h-[10px] cursor-pointer bg-white'} ${methods.getOpacityClassName(i)}`} style={{margin: "0px 4px"}} onClick={props.onClick.bind(null, i)}></div>;
+                return <div key={i} className={`${'inline-block rounded-full w-[10px] h-[10px] cursor-pointer bg-white'} ${methods.getOpacityClassName(i)}`} style={{margin: "0px 4px"}} onClick={methods.onClick.bind(null, i)}></div>;
             }, props.length)}
         </div>
     );

@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import ApplicationsLayout from "@/app/layouts/ApplicationsLayout";
+import React, {KeyboardEventHandler, MouseEventHandler, useEffect, useState} from 'react';
 import IconComponent from "@/app/components/applications/Icon";
 import Icon from "@/app/constants/class/Icon";
 import Search from "@/app/components/applications/Search";
@@ -8,8 +7,6 @@ import Size from "@/app/constants/class/Size";
 import Utils from "@/app/utils";
 import Section from "@/app/components/applications/Section";
 import Vector2 from "@/app/constants/class/Vector2";
-import {Simulate} from "react-dom/test-utils";
-import mouseDown = Simulate.mouseDown;
 
 const constant = {
 
@@ -89,10 +86,14 @@ const constant = {
 
 };
 
-const ApplicationsPage: React.FC = () => {
+const Applications: React.FC<{
+    visible: boolean
+    isMovedSearchText: boolean
+    onClickBody: MouseEventHandler | undefined
+    onClickSearchText: MouseEventHandler | undefined
+}> = (props) => {
 
     const [selectedPageIndex, setSelectedPageIndex] = useState(0);
-    const [isMovedSearchText, setMovedSearchText] = useState(false);
 
     const refs = {
 
@@ -132,26 +133,36 @@ const ApplicationsPage: React.FC = () => {
 
     const methods = {
 
+        getClassNameByVisible(){
+          if( props.visible ){
+              return 'opacity-100 pointer-events-auto';
+          }
+
+            return 'opacity-0 pointer-events-none';
+        },
+
         onClickPage( index ){
             setSelectedPageIndex( index );
         },
 
-        onClickSearchText(){
-            setMovedSearchText( !isMovedSearchText );
+        onClickSearchText( event ){
+            if( props.onClickSearchText === undefined ){
+                return;
+            }
+            props.onClickSearchText( event );
         },
 
         onClickBody(event){
-
-            if(isMovedSearchText === false){
-                return;
-            }
 
             if( event.currentTarget === refs.search.current ){
                 return;
             }
 
-            setMovedSearchText(false);
+            if(props.onClickBody === undefined){
+                return;
+            }
 
+            props.onClickBody(event);
         },
 
         onClickSearchSection(event){
@@ -215,10 +226,10 @@ const ApplicationsPage: React.FC = () => {
     }
 
     return (
-        <ApplicationsLayout onClick={methods.onClickBody} onMousedown={methods.onMousedownBody} onMousemove={methods.onMousemoveBody} onMouseup={methods.onMouseupBody}>
+        <div className={`bg-[rgba(0,0,0,0.5)] bg-gradient-radial absolute top-0 left-0 min-w-[1200px] min-h-[800px] w-full h-full select-none ease-in-out duration-500 ${methods.getClassNameByVisible()}`} onClick={methods.onClickBody} onMouseDown={methods.onMousedownBody} onMouseMove={methods.onMousemoveBody} onMouseUp={methods.onMouseupBody}>
             <Section>
                 <div ref={refs.search} onClick={methods.onClickSearchSection}>
-                    <Search isMovedSearchText={isMovedSearchText} onClickSearchText={methods.onClickSearchText}></Search>
+                    <Search isMovedSearchText={props.isMovedSearchText} onClickSearchText={methods.onClickSearchText}></Search>
                 </div>
             </Section>
             <div className={constant.className.body} style={{height: "calc(100% - 100px)"}}>
@@ -254,8 +265,8 @@ const ApplicationsPage: React.FC = () => {
             <Section>
                 <PageNavigation selectedIndex={selectedPageIndex} length={data.pageLength} onClick={methods.onClickPage}></PageNavigation>
             </Section>
-        </ApplicationsLayout>
+        </div>
     );
 };
 
-export default ApplicationsPage;
+export default Applications;

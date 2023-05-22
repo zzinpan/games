@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, {MouseEventHandler, useEffect, useState} from "react";
 
 const Search: React.FC<{
 
     isMovedSearchText: boolean
-    onClickSearchText: () => void
+    onClickSearchText: MouseEventHandler | undefined
 
 }> = (props) => {
 
@@ -11,10 +11,19 @@ const Search: React.FC<{
 
     useEffect(() => {
 
+        const input = refs.input.current;
         if( props.isMovedSearchText ){
+
+            // 500ms의 이동 transition이 발생
+            setTimeout(() => {
+                input.focus();
+            }, 500);
+
             return;
         }
-        refs.input.current.value = '';
+
+        input.value = '';
+        input.blur();
         setSearchText('검색');
 
     });
@@ -47,19 +56,13 @@ const Search: React.FC<{
 
         },
 
-        onClickSearchText(){
+        onClickSearchText(event){
 
-            props.onClickSearchText();
-
-            if(props.isMovedSearchText === true){
+            if(props.onClickSearchText === undefined){
                 return;
             }
 
-            // 500ms의 이동 transition이 발생
-            const input = refs.input.current;
-            setTimeout(() => {
-                input.focus();
-            }, 500);
+            props.onClickSearchText(event);
 
         },
 

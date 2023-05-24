@@ -110,11 +110,13 @@ const Applications: React.FC<{
         columnIconLength: number
         pageIconLength: number
         pageLength: number
+        selectToPageIndex: number
     } = {
 
         draged: false,
         mousedown: null,
         moveSnap: 200,
+        selectToPageIndex: selectedPageIndex,
         ...(() => {
             const rowIconLength = constant.iconPageSize.getHeight() / Icon.OuterSize.getHeight();
             const columnIconLength = constant.iconPageSize.getWidth() / Icon.OuterSize.getWidth();
@@ -161,8 +163,13 @@ const Applications: React.FC<{
             }
 
             if(data.draged){
+                if(data.selectToPageIndex !== selectedPageIndex){
+                    setSelectedPageIndex( data.selectToPageIndex);
+                }
                 return;
             }
+
+
 
             if(props.onClickBody === undefined){
                 return;
@@ -216,12 +223,12 @@ const Applications: React.FC<{
             data.mousedown = null;
 
             if( selectedPageIndex < data.pageLength - 1 && moveX < -data.moveSnap ){
-                setSelectedPageIndex( selectedPageIndex + 1 );
+                data.selectToPageIndex += 1;
                 return;
             }
 
             if( 0 < selectedPageIndex && moveX > data.moveSnap ){
-                setSelectedPageIndex( selectedPageIndex - 1 );
+                data.selectToPageIndex -= 1;
                 return;
             }
 

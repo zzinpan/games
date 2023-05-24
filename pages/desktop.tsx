@@ -4,6 +4,7 @@ import CommonLayout from "@/app/layouts/CommonLayout";
 import dayjs from "dayjs";
 import 'dayjs/locale/ko';
 import Image from "next/image";
+import Window from "@/app/components/desktop/Window";
 
 const constant = {
   keyCode: {
@@ -78,7 +79,12 @@ const DesktopPage: React.FC = () => {
                     </div>
                 </section>
                 <section className={'relative'} style={{height: 'calc(100% - 60px - 29px)'}}>
-                    바디
+                    <Window left={100} top={100}>
+                        <div className={`text-[0px]`}>
+                            <div className={`inline-block w-[200px] h-[500px] bg-gray-300`}></div>
+                            <div className={`inline-block w-[600px] h-[500px] bg-white`}></div>
+                        </div>
+                    </Window>
                 </section>
                 <section className={'relative bg-[rgba(255,255,255,0.25)] p-[10px] h-[60px] left-[40px] rounded-xl'} style={{width: 'calc(100% - 80px)'}}>
                     <div className={'inline-block bg-white rounded-lg cursor-pointer'} onClick={methods.onClickShowApplicationButton}>

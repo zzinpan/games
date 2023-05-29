@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import 'dayjs/locale/ko';
 import Image from "next/image";
 import Window from "@/app/components/desktop/Window";
+import Vector2 from "@/app/constants/class/Vector2";
 
 const constant = {
   keyCode: {
@@ -15,6 +16,36 @@ const constant = {
 dayjs.locale('ko');
 
 const DesktopPage: React.FC = () => {
+
+    const refs = {
+        body: React.createRef(),
+    };
+
+    const windows = (() => {
+
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [windows, setWindows] = useState([
+            {
+                position: new Vector2(200, 200)
+            }
+        ]);
+
+        return {
+
+            getAll(){
+                return windows;
+            },
+
+            remove( index ){
+
+                windows.splice( index, 1 );
+                setWindows( windows.slice() );
+
+            }
+
+        };
+
+    })();
 
     const applications = (() => {
 
@@ -78,13 +109,17 @@ const DesktopPage: React.FC = () => {
                         {dayjs().format('M월 D일 (ddd) A HH:mm')}
                     </div>
                 </section>
-                <section className={'relative'} style={{height: 'calc(100% - 60px - 29px)'}}>
-                    <Window left={100} top={100}>
-                        <div className={`text-[0px]`}>
-                            <div className={`inline-block w-[200px] h-[500px] bg-gray-300`}></div>
-                            <div className={`inline-block w-[600px] h-[500px] bg-white`}></div>
-                        </div>
-                    </Window>
+                <section ref={refs.body} className={'relative'} style={{height: 'calc(100% - 60px - 29px)'}}>
+                    {windows.getAll().map(( window, index )  => {
+
+                        return <Window key={index} parent={refs.body} left={window.position.getX()} top={window.position.getY()} onClickCloseButton={windows.remove.bind(null, index)}>
+                            <div className={`text-[0px]`}>
+                                <div className={`inline-block w-[200px] h-[500px] bg-gray-300`}></div>
+                                <div className={`inline-block w-[600px] h-[500px] bg-white`}></div>
+                            </div>
+                        </Window>;
+
+                    })}
                 </section>
                 <section className={'relative bg-[rgba(255,255,255,0.25)] p-[10px] h-[60px] left-[40px] rounded-xl'} style={{width: 'calc(100% - 80px)'}}>
                     <div className={'inline-block bg-white rounded-lg cursor-pointer'} onClick={methods.onClickShowApplicationButton}>

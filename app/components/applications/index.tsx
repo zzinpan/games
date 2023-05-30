@@ -139,10 +139,10 @@ const Applications: React.FC<{
 
         getClassNameByVisible(){
           if( props.visible ){
-              return 'opacity-100 pointer-events-auto';
+              return 'opacity-100 scale-100 pointer-events-auto';
           }
 
-            return 'opacity-0 pointer-events-none';
+            return 'opacity-0 scale-125 pointer-events-none';
         },
 
         onClickPage( index ){

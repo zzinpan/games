@@ -4,8 +4,10 @@ import CommonLayout from "@/app/layouts/CommonLayout";
 import dayjs from "dayjs";
 import 'dayjs/locale/ko';
 import Image from "next/image";
-import Window from "@/app/components/desktop/Window";
+import ProgramComponent from "@/app/components/desktop/Program";
+import Program from "@/app/constants/class/Program";
 import Vector2 from "@/app/constants/class/Vector2";
+import Dock from "@/app/components/desktop/Dock";
 
 const constant = {
   keyCode: {
@@ -46,63 +48,78 @@ const DesktopPage: React.FC = () => {
 
     })();
 
-    const windows = (() => {
+    const programs = (() => {
 
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [windows, setWindows] = useState([
-            {
-                visible: true,
-                focus: true,
-                position: new Vector2(200, 200),
-            },
-            {
-                visible: true,
-                focus: false,
-                position: new Vector2(800, 200),
-            }
-        ]);
+        const [programs, setPrograms] = useState(Array<Program>);
 
         return {
 
             getAll(){
-                return windows;
+                return programs;
             },
 
-            showAll(){
+            blurAll(){
 
-                windows.forEach((window) => {
-                    window.visible = true;
+                programs.forEach((program: Program) => {
+                    program.setFocus(false);
                 });
 
-                setWindows( windows.slice() );
+                setPrograms( programs.slice() );
+                
+            },
+            
+            showAll(){
+
+                programs.forEach((program: Program) => {
+                    program.show();
+                });
+
+                setPrograms( programs.slice() );
 
             },
 
             hideAll(){
 
-                windows.forEach((window) => {
-                    window.visible = false;
+                programs.forEach((program: Program) => {
+                    program.hide();
                 });
 
-                setWindows( windows.slice() );
+                setPrograms( programs.slice() );
+
+            },
+
+            update(){
+
+                setPrograms( programs.slice() );
 
             },
 
             focus( index ){
 
-                windows.forEach((window) => {
-                    window.focus = false;
+                programs.forEach((program: Program) => {
+                    program.setFocus(false);
                 });
-                windows[ index ].focus = true;
 
-                setWindows( windows.slice() );
+                const program: Program = programs[ index ];
+                program.setFocus(true);
+
+                setPrograms( programs.slice() );
 
             },
 
-            remove( index ){
+            add(program: Program){
 
-                windows.splice( index, 1 );
-                setWindows( windows.slice() );
+                programs.push( program );
+                setPrograms( programs.slice() );
+
+            },
+
+            remove( program ){
+
+                const index = programs.indexOf( program );
+                console.log(programs.splice( index, 1 )[0].getPosition());
+                setPrograms( programs.slice() );
 
             }
 
@@ -119,14 +136,24 @@ const DesktopPage: React.FC = () => {
         const [isMovedSearchText, setIsMovedSearchText] = useState(false);
 
         return {
-            visible,
-            isMovedSearchText,
-            setVisible,
+            getVisible(){
+                return visible;
+            },
+            getIsMovedSearchText(){
+                return isMovedSearchText;
+            },
+            show(){
+                setVisible(true);
+            },
+            hide(){
+                setVisible(false);
+            },
             setIsMovedSearchText,
             onClickBody(){
                 setVisible(false);
                 setIsMovedSearchText(false);
-                windows.showAll();
+                programs.showAll();
+                dock.show();
             },
             onClickSearchText(){
                 setIsMovedSearchText(!isMovedSearchText);
@@ -135,19 +162,50 @@ const DesktopPage: React.FC = () => {
 
     })();
 
+    const dock = (() => {
+
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [visible, setVisible] = useState(true);
+
+        return {
+            getVisible(){
+                return visible;
+            },
+
+            show(){
+                setVisible(true);
+            },
+
+            hide(){
+                setVisible(false);
+            }
+        };
+
+    })();
+
     const methods = {
 
         onClickShowApplicationButton(){
-            applications.setVisible(true);
-            windows.hideAll();
+            applications.show();
+            programs.hideAll();
+            dock.hide();
         },
 
-        onClickWindowCloseButton( index ){
-            windows.remove( index );
+        onClickShowProgramButton(){
+            programs.blurAll();
+            programs.add( new Program( true,true, new Vector2(200, 200) ) );
         },
 
-        onMouseDownWindow( index ){
-            windows.focus( index );
+        onClickProgramCloseButton( program){
+            // todo: 이거 왜 삭제가 이상한 순서로 되는거지?
+            programs.remove( program );
+        },
+
+        onMouseDownProgram( program, event ){
+            event.stopPropagation();
+            programs.blurAll();
+            program.setFocus(true);
+            programs.update();
         }
     };
 
@@ -156,16 +214,22 @@ const DesktopPage: React.FC = () => {
         const onWindowKeydown = ( event ) => {
             if(event.keyCode === constant.keyCode.esc){
 
-                if(applications.isMovedSearchText){
+                if(applications.getIsMovedSearchText()){
                     applications.setIsMovedSearchText(false);
                 }else{
-                    applications.setVisible(false);
+                    applications.hide();
                 }
             }
         };
 
+        const onWindowMousedown = () => {
+            programs.blurAll();
+        };
+
         window.addEventListener("keydown", onWindowKeydown);
+        window.addEventListener("mousedown", onWindowMousedown);
         return () => {
+            window.removeEventListener("mousedown", onWindowMousedown);
             window.removeEventListener("keydown", onWindowKeydown);
         };
 
@@ -183,23 +247,25 @@ const DesktopPage: React.FC = () => {
                     </div>
                 </section>
                 <section ref={refs.body} className={'relative'} style={{height: 'calc(100% - 60px - 29px)'}}>
-                    {windows.getAll().map(( window, index )  => {
+                    {programs.getAll().map((program: Program, index )  => {
 
-                        return <Window key={index} parent={refs.body} left={window.position.getX()} top={window.position.getY()} visible={window.visible} focus={window.focus} onMouseDown={methods.onMouseDownWindow.bind( null, index )} onClickCloseButton={methods.onClickWindowCloseButton.bind(null, index)}>
+                        const position = program.getPosition();
+                        console.log(program, program.isFocus());
+
+                        return <ProgramComponent key={index} parent={refs.body} left={position.getX()} top={position.getY()} visible={program.getVisible()} focus={program.isFocus()} onMouseDown={methods.onMouseDownProgram.bind( null, program )} onClickCloseButton={methods.onClickProgramCloseButton.bind(null, program)}>
                             <div className={`text-[0px] whitespace-nowrap`}>
                                 <div className={`inline-block w-[200px] h-[500px] bg-gray-300`}></div>
                                 <div className={`inline-block w-[600px] h-[500px] bg-white`}></div>
                             </div>
-                        </Window>;
+                        </ProgramComponent>;
 
                     })}
                 </section>
-                <section className={'relative backdrop-blur-md bg-[rgba(255,255,255,0.25)] p-[10px] h-[60px] left-[40px] rounded-xl z-[100]'} style={{width: 'calc(100% - 80px)'}}>
-                    <div className={'inline-block bg-white rounded-lg cursor-pointer'} onClick={methods.onClickShowApplicationButton}>
-                        <Image src={'/image/desktop/applications.png'} alt={''} width={40} height={40} />
-                    </div>
-                </section>
-                <Applications visible={applications.visible} isMovedSearchText={applications.isMovedSearchText} onClickBody={applications.onClickBody} onClickSearchText={applications.onClickSearchText}></Applications>
+                <Dock visible={dock.getVisible()} icons={[
+                    { src: '/image/applications/icon/folder.png', onClick: methods.onClickShowProgramButton },
+                    { src: '/image/desktop/applications.png', onClick: methods.onClickShowApplicationButton },
+                ]}></Dock>
+                <Applications visible={applications.getVisible()} isMovedSearchText={applications.getIsMovedSearchText()} onClickBody={applications.onClickBody} onClickSearchText={applications.onClickSearchText}></Applications>
             </div>
         </CommonLayout>
     );

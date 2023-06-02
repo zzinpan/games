@@ -12,7 +12,7 @@ const constant = {
 
 };
 
-const Window: React.FC<{
+const Program: React.FC<{
     focus: boolean
     visible: boolean
     left: number
@@ -56,10 +56,30 @@ const Window: React.FC<{
 
         },
 
-        getButtonClassNameByFocus(){
+        getCloseButtonClassNameByFocus(){
 
             if( props.focus ){
-                return '';
+                return 'bg-red-500';
+            }
+
+            return 'bg-gray-400';
+
+        },
+
+        getMinimumButtonClassNameByFocus(){
+
+            if( props.focus ){
+                return 'bg-yellow-500';
+            }
+
+            return 'bg-gray-400';
+
+        },
+
+        getMaximumButtonClassNameByFocus(){
+
+            if( props.focus ){
+                return 'bg-green-500';
             }
 
             return 'bg-gray-400';
@@ -136,13 +156,13 @@ const Window: React.FC<{
     return (
         <div ref={refs.window} className={`mac-window absolute inline-block rounded-xl shadow-2xl shadow-black overflow-hidden transition-opacity duration-700 ${methods.getClassNameByFocus()} ${methods.getClassNameByVisible()}`} style={{left: `${position.getX()}px`, top: `${position.getY()}px`}} onMouseDown={props.onMouseDown}>
             <div className={'mac-window-header absolute w-full left-0 top-0 pl-[20px] pt-[10px] pb-[10px] pr-[20px] inline-block cursor-move'}>
-                <div className={`rounded-full bg-red-500 inline-block w-[12px] h-[12px] shadow cursor-pointer ${methods.getButtonClassNameByFocus()}`} onClick={props.onClickCloseButton}></div>
-                <div className={`rounded-full bg-yellow-500 inline-block ml-[8px] w-[12px] h-[12px] shadow cursor-pointer ${methods.getButtonClassNameByFocus()}`}></div>
-                <div className={`rounded-full bg-green-500 inline-block ml-[8px] w-[12px] h-[12px] shadow cursor-pointer ${methods.getButtonClassNameByFocus()}`}></div>
+                <div className={`rounded-full inline-block w-[12px] h-[12px] shadow cursor-pointer ${methods.getCloseButtonClassNameByFocus()}`} onClick={props.onClickCloseButton}></div>
+                <div className={`rounded-full inline-block ml-[8px] w-[12px] h-[12px] shadow cursor-pointer ${methods.getMinimumButtonClassNameByFocus()}`}></div>
+                <div className={`rounded-full inline-block ml-[8px] w-[12px] h-[12px] shadow cursor-pointer ${methods.getMaximumButtonClassNameByFocus()}`}></div>
             </div>
             {props.children}
         </div>
     );
 };
 
-export default Window;
+export default Program;

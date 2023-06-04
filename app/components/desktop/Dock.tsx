@@ -3,6 +3,8 @@ import Image from "next/image";
 
 const Dock: React.FC<{
     visible: boolean
+
+    // todo: dock, desktop, applications 아이콘 통일 필요
     icons: Array<{
         src: string,
         onClick: MouseEventHandler

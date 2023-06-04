@@ -267,7 +267,10 @@ const DesktopPage: React.FC = () => {
                     { src: '/image/applications/icon/folder.png', onClick: methods.onClickShowProgramButton },
                     { src: '/image/desktop/applications.png', onClick: methods.onClickShowApplicationButton },
                 ]}></Dock>
-                <Applications visible={applications.getVisible()} isMovedSearchText={applications.getIsMovedSearchText()} onClickBody={applications.onClickBody} onClickSearchText={applications.onClickSearchText}></Applications>
+                <Applications visible={applications.getVisible()} isMovedSearchText={applications.getIsMovedSearchText()} onClickBody={applications.onClickBody} onClickSearchText={applications.onClickSearchText} icons={[
+                    { src: '/image/applications/icon/folder.png', onClick: methods.onClickShowProgramButton },
+                    { src: '/image/desktop/applications.png', onClick: methods.onClickShowApplicationButton },
+                ]}></Applications>
             </div>
         </CommonLayout>
     );

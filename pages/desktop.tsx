@@ -196,8 +196,10 @@ const DesktopPage: React.FC = () => {
             programs.add( new Program( true,true, new Vector2(200, 200) ) );
         },
 
-        onClickProgramCloseButton( program){
-            // todo: 이거 왜 삭제가 이상한 순서로 되는거지?
+        onClickProgramCloseButton( program ){
+            if(program.isFocus() === false){
+                return;
+            }
             programs.remove( program );
         },
 
